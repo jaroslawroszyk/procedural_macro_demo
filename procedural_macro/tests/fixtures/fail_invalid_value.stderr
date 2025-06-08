@@ -1,0 +1,11 @@
+error: calculation value must be a numeric literal
+ --> tests/fixtures/fail_invalid_value.rs:8:17
+  |
+8 | #[calculation = "not-a-number"]
+  |                 ^^^^^^^^^^^^^^
+
+error[E0601]: `main` function not found in crate `$CRATE`
+ --> tests/fixtures/fail_invalid_value.rs:9:15
+  |
+9 | struct MyCalc;
+  |               ^ consider adding a `main` function to `$DIR/tests/fixtures/fail_invalid_value.rs`

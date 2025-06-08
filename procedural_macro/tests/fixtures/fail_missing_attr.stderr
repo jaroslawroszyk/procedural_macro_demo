@@ -1,0 +1,11 @@
+error: missing #[calculation = N] attribute
+ --> tests/fixtures/fail_missing_attr.rs:4:8
+  |
+4 | struct Missing;
+  |        ^^^^^^^
+
+error[E0601]: `main` function not found in crate `$CRATE`
+ --> tests/fixtures/fail_missing_attr.rs:4:16
+  |
+4 | struct Missing;
+  |                ^ consider adding a `main` function to `$DIR/tests/fixtures/fail_missing_attr.rs`

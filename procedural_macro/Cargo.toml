@@ -11,5 +11,8 @@ path = "src/lib.rs"
 syn = { version = "2.0", features = ["full"] }
 quote = "1.0"
 proc-macro2 = "1.0" 
-facet = "0.27"
-facet-macros = "0.27"
+facet = "0.27.12"
+facet-macros = "0.27.12"
+
+[dev-dependencies]
+trybuild = "1.0"

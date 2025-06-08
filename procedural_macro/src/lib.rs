@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, DeriveInput, Meta, Lit, Expr};
+use syn::{parse_macro_input, DeriveInput, Expr, Lit, Meta};
 // use facet::Facet;
 
 #[proc_macro_derive(GenerateStruct)]
@@ -27,7 +27,7 @@ pub fn generate_struct(input: TokenStream) -> TokenStream {
 pub fn hello_world(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = input.ident;
-    
+
     let expanded = quote! {
         impl HelloWorld for #name {
             fn hello_world(&self) {
@@ -43,9 +43,10 @@ pub fn hello_world(input: TokenStream) -> TokenStream {
 pub fn derive_foo(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = input.ident;
-    
+
     // Extract attribute values
-    let attrs: Vec<String> = input.attrs
+    let attrs: Vec<String> = input
+        .attrs
         .iter()
         .filter_map(|attr| {
             if attr.path().is_ident("foo") || attr.path().is_ident("bar") {
@@ -83,9 +84,10 @@ pub fn derive_foo(input: TokenStream) -> TokenStream {
 pub fn derive_repeat(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = input.ident;
-    
+
     // Extract count attribute
-    let count = input.attrs
+    let count = input
+        .attrs
         .iter()
         .find_map(|attr| {
             if attr.path().is_ident("count") {
@@ -121,7 +123,6 @@ pub fn derive_repeat(input: TokenStream) -> TokenStream {
     TokenStream::from(expanded)
 }
 
-
 #[proc_macro_derive(CountFields)]
 pub fn count_fields(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -155,7 +156,6 @@ pub fn my_magic(input: TokenStream) -> TokenStream {
     TokenStream::from(expanded)
 }
 
-
 #[proc_macro_derive(MyMagicDescription)]
 pub fn my_magic_description(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -182,6 +182,60 @@ pub fn my_magic_description(input: TokenStream) -> TokenStream {
         impl #struct_name {
             pub fn describe(&self) {
                 #(#describe_lines)*
+            }
+        }
+    };
+
+    TokenStream::from(expanded)
+}
+
+#[proc_macro_derive(RetryCalculation, attributes(calculation))]
+pub fn derive_calculation_helper(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let struct_name = &input.ident;
+
+    let mut calc_count = 1usize;
+    let mut found_calc = false;
+
+    for attr in &input.attrs {
+        if attr.path().is_ident("calculation") {
+            found_calc = true;
+            if let Meta::NameValue(meta) = &attr.meta {
+                if let Expr::Lit(expr_lit) = &meta.value {
+                    if let Lit::Int(lit_int) = &expr_lit.lit {
+                        if let Ok(val) = lit_int.base10_parse::<usize>() {
+                            calc_count = val;
+                        } else {
+                            return syn::Error::new_spanned(
+                                lit_int,
+                                "calculation value must be a positive integer",
+                            )
+                            .to_compile_error()
+                            .into();
+                        }
+                    } else {
+                        return syn::Error::new_spanned(
+                            expr_lit,
+                            "calculation value must be a numeric literal",
+                        )
+                        .to_compile_error()
+                        .into();
+                    }
+                }
+            }
+        }
+    }
+
+    if !found_calc {
+        return syn::Error::new_spanned(struct_name, "missing #[calculation = N] attribute")
+            .to_compile_error()
+            .into();
+    }
+
+    let expanded = quote! {
+        impl Calc for #struct_name {
+            fn calc_count(&self) -> usize {
+                #calc_count
             }
         }
     };

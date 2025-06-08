@@ -137,3 +137,20 @@ pub fn count_fields(input: TokenStream) -> TokenStream {
 
     TokenStream::from(expanded)
 }
+
+#[proc_macro_derive(MyMagic)]
+pub fn my_magic(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = input.ident;
+
+    let expanded = quote! {
+        impl #name {
+            pub fn my_metadata() {
+                let shape = #name::SHAPE;
+                println!("Struct fields: {:?}", shape);
+            }
+        }
+    };
+
+    TokenStream::from(expanded)
+}

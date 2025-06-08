@@ -1,6 +1,6 @@
 use facet::Facet;
 // src/main.rs
-use procedural_macro::{Foo, GenerateStruct, HelloWorld, Repeat};
+use procedural_macro::{Foo, GenerateStruct, HelloWorld, MyMagic, Repeat};
 
 // Example of GenerateStruct macro
 #[derive(Debug, GenerateStruct)]
@@ -44,6 +44,13 @@ struct MyStruct;
 struct Person {
     name: String,
     age: u32,
+}
+
+// Exampel of MyMagic macro
+#[derive(Facet, MyMagic)]
+struct MyMagicStruct {
+    id: u32,
+    name: String,
 }
 
 fn main() {

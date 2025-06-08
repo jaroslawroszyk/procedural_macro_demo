@@ -154,3 +154,37 @@ pub fn my_magic(input: TokenStream) -> TokenStream {
 
     TokenStream::from(expanded)
 }
+
+
+#[proc_macro_derive(MyMagicDescription)]
+pub fn my_magic_description(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let struct_name = input.ident;
+
+    let fields = if let syn::Data::Struct(syn::DataStruct {
+        fields: syn::Fields::Named(ref fields),
+        ..
+    }) = input.data
+    {
+        &fields.named
+    } else {
+        panic!("MyDupa only supports structs with named fields");
+    };
+
+    let describe_lines = fields.iter().map(|f| {
+        let name = f.ident.as_ref().unwrap();
+        quote! {
+            println!("{}: {:?}", stringify!(#name), self.#name);
+        }
+    });
+
+    let expanded = quote! {
+        impl #struct_name {
+            pub fn describe(&self) {
+                #(#describe_lines)*
+            }
+        }
+    };
+
+    TokenStream::from(expanded)
+}

@@ -1,6 +1,6 @@
 use facet::Facet;
 // src/main.rs
-use procedural_macro::{Foo, GenerateStruct, HelloWorld, MyMagic, Repeat};
+use procedural_macro::{Foo, GenerateStruct, HelloWorld, MyMagic, MyMagicDescription, Repeat};
 
 // Example of GenerateStruct macro
 #[derive(Debug, GenerateStruct)]
@@ -53,6 +53,12 @@ struct MyMagicStruct {
     name: String,
 }
 
+#[derive(MyMagicDescription)]
+struct MyMagicDescription {
+    name: String,
+    age: u32,
+}
+
 fn main() {
     // Test GenerateStruct
     let user = GeneratedUser::new();
@@ -72,4 +78,11 @@ fn main() {
     // Test Facet
     let shape = Person::SHAPE;
     println!("Person shape: {:?}", shape);
+
+    let dupa = MyMagicDescription {
+        name: String::from("John"),
+        age: 30,
+    };
+
+    dupa.describe();
 }

@@ -1,6 +1,7 @@
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, Meta, Lit, Expr};
+// use facet::Facet;
 
 #[proc_macro_derive(GenerateStruct)]
 pub fn generate_struct(input: TokenStream) -> TokenStream {
@@ -96,6 +97,23 @@ pub fn derive_repeat(input: TokenStream) -> TokenStream {
                 for i in 0..#count {
                     println!("Repeating {} times: {}", #count, i + 1);
                 }
+            }
+        }
+    };
+
+    TokenStream::from(expanded)
+}
+
+
+#[proc_macro_derive(CountFields)]
+pub fn count_fields(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = &input.ident;
+
+    let expanded = quote! {
+        impl #name {
+            pub fn count_fields() -> usize {
+                #name::SHAPE.fields().len()
             }
         }
     };

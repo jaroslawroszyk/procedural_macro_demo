@@ -25,26 +25,43 @@ pub fn generate_struct(input: TokenStream) -> TokenStream {
 
 #[proc_macro_derive(HelloWorld)]
 pub fn hello_world(input: TokenStream) -> TokenStream {
-    let _input = parse_macro_input!(input as DeriveInput);
+    let input = parse_macro_input!(input as DeriveInput);
+    let name = input.ident;
+    
     let expanded = quote! {
-        fn hello_world() {
-            println!("Hello, world!");
+        impl HelloWorld for #name {
+            fn hello_world(&self) {
+                println!("Hello, world!");
+            }
         }
     };
+
     TokenStream::from(expanded)
 }
 
-#[proc_macro_derive(Foo, attributes(foo))]
+#[proc_macro_derive(Foo, attributes(foo, bar))]
 pub fn derive_foo(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = input.ident;
     
-    // Extract attributes
+    // Extract attribute values
     let attrs: Vec<String> = input.attrs
         .iter()
         .filter_map(|attr| {
-            if attr.path().is_ident("foo") {
-                Some(attr.path().get_ident()?.to_string())
+            if attr.path().is_ident("foo") || attr.path().is_ident("bar") {
+                if let Meta::NameValue(meta) = &attr.meta {
+                    if let Expr::Lit(expr_lit) = &meta.value {
+                        if let Lit::Str(lit) = &expr_lit.lit {
+                            Some(lit.value())
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
             } else {
                 None
             }
